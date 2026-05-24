@@ -407,10 +407,12 @@ jobs:
           if [ "${{ inputs.target_select }}" == "ZBT-WG3526" ] || [ "${{ inputs.target_select }}" == "ZBT-WG3526-32" ]; then
             PCI_C="padavan-ng/trunk/linux-3.4.x/arch/mips/rt2880/pci.c"
             if [ -f "$PCI_C" ]; then
-              echo "Patching bypass_pipe_rst to run on all revisions..."
+              echo "=== Step 1: Force bypass_pipe_rst on all revisions ==="
               sed -i 's/if ((ralink_asic_rev_id \& 0xFFFF) == 0x0101) \/\/ MT7621 E2$/if (1) \/\/ always call bypass_pipe_rst/' "$PCI_C"
-              echo "Result:"
-              grep -n 'bypass_pipe_rst' "$PCI_C"
+              echo "=== Step 2: Force PCIe1 detection (skip STATUS check) ==="
+              sed -i 's/if ((RALINK_PCI1_STATUS \& 0x1) == 0) {/if (0) { \/\/ FORCE PCIe1 present/' "$PCI_C"
+              echo "=== After patch ==="
+              grep -n 'bypass_pipe_rst\|RALINK_PCI1_STATUS' "$PCI_C"
             fi
           fi
 
