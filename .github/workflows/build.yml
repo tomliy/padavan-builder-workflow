@@ -402,6 +402,18 @@ jobs:
           fi
           echo "::endgroup::"
 
+      - name: 🔧 Patch PCIe config for ZBT-WG3526
+        run: |
+          if [ "${{ inputs.target_select }}" == "ZBT-WG3526" ] || [ "${{ inputs.target_select }}" == "ZBT-WG3526-32" ]; then
+            KERNEL_CONFIG="padavan-ng/trunk/configs/boards/ZBT/ZBT-WG3526/kernel-3.4.x.config"
+            if [ -f "$KERNEL_CONFIG" ]; then
+              echo "Patching PCIe PERST config for WG3526..."
+              sed -i 's/CONFIG_PCIE_PERST_ONLY=y/# CONFIG_PCIE_PERST_ONLY is not set/' "$KERNEL_CONFIG"
+              echo "Result:"
+              grep PCIE_PERST "$KERNEL_CONFIG"
+            fi
+          fi
+
       # 6. 安裝 Themes
       - name: Install themes
         run: |
